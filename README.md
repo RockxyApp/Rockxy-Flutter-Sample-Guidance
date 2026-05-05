@@ -8,8 +8,11 @@ manual path is:
 
 1. choose the Rockxy proxy host for the runtime running the app;
 2. configure the Flutter HTTP client to use that proxy;
-3. complete the iOS or Android certificate trust path;
-4. send one known HTTPS request and confirm it appears in Rockxy.
+3. run the local demo API on this Mac;
+4. send one known request and confirm it appears in Rockxy.
+
+For HTTPS inspection, complete the iOS or Android certificate trust path after
+the HTTP capture path is working.
 
 ## Runtime Proxy Hosts
 
@@ -30,7 +33,18 @@ same local network as the Mac.
 2. Open Developer Setup Hub > Flutter.
 3. Pick the runtime that matches where the Flutter app is running.
 4. Use the host and port from the table above.
-5. Install and trust the Rockxy certificate for that runtime:
+5. Run the local demo API:
+
+```sh
+fvm dart run tool/rockxy_demo_api.dart --port 43210
+```
+
+6. Run the Flutter sample and send the default request.
+7. Confirm Rockxy captures `GET http://127.0.0.1:43210/rockxy-demo/bootstrap`.
+
+For HTTPS app traffic, also install and trust the Rockxy certificate for that
+runtime:
+
    - iOS Simulator: install/trust the certificate in the simulator.
    - Physical iPhone or iPad: install the certificate profile and enable full
      trust in iOS settings.
@@ -38,7 +52,6 @@ same local network as the Mac.
      trusts user CAs.
    - Physical Android device: set the Wi-Fi proxy to the Device Proxy LAN host,
      install the user certificate, and run a debug build that trusts user CAs.
-6. Send one known HTTPS request and confirm it appears in Rockxy.
 
 ## Use This Sample
 
@@ -50,6 +63,12 @@ git clone https://github.com/RockxyApp/Rockxy-Flutter-Sample-Guidance.git
 cd Rockxy-Flutter-Sample-Guidance
 fvm use stable
 fvm flutter pub get
+fvm dart run tool/rockxy_demo_api.dart --port 43210
+```
+
+In another terminal, run the Flutter app:
+
+```sh
 fvm flutter run
 ```
 
@@ -68,9 +87,14 @@ configuration shown in `snippets/android/app/src/debug`.
 ## Create Demo Traffic
 
 Use harmless, clearly fake data when recording a Rockxy demo. The sample app can
-send any HTTPS `GET` URL, so a good demo is usually a short sequence of requests
-that looks like a real app flow without exposing real accounts, tokens, or
-customer data.
+send any HTTP or HTTPS `GET` URL. The recommended demo uses the local API in
+`tool/rockxy_demo_api.dart` so the capture does not depend on a third-party
+service or external network availability.
+
+Rockxy can capture this loopback demo when the Flutter client explicitly routes
+the request through Rockxy. Do not rely on the operating system proxy alone for
+localhost traffic because system bypass settings commonly exclude `localhost`
+and `127.0.0.1`.
 
 ### Recommended Demo Flow
 
@@ -78,11 +102,11 @@ Paste these URLs into the sample app one at a time and send each request through
 Rockxy:
 
 ```text
-https://httpbin.org/anything/rockxy-demo/bootstrap?app=storefront&platform=flutter&build=debug
-https://httpbin.org/anything/rockxy-demo/profile?user_id=demo-user-001&plan=trial&region=us
-https://httpbin.org/anything/rockxy-demo/products?category=coffee&currency=USD&page=1
-https://httpbin.org/anything/rockxy-demo/cart?cart_id=demo-cart-2026&items=3&subtotal=64.50
-https://httpbin.org/anything/rockxy-demo/checkout?order_id=demo-order-1001&payment_method=sandbox_card
+http://127.0.0.1:43210/rockxy-demo/bootstrap?app=storefront&platform=flutter&build=debug
+http://127.0.0.1:43210/rockxy-demo/profile?user_id=demo-user-001&plan=trial&region=us
+http://127.0.0.1:43210/rockxy-demo/products?category=coffee&currency=USD&page=1
+http://127.0.0.1:43210/rockxy-demo/cart?cart_id=demo-cart-2026&items=3&subtotal=64.50
+http://127.0.0.1:43210/rockxy-demo/checkout?order_id=demo-order-1001&payment_method=sandbox_card
 ```
 
 This creates a professional-looking capture timeline:
@@ -99,9 +123,9 @@ Capture one or two failure cases after the successful flow so the demo shows how
 Rockxy helps inspect edge cases:
 
 ```text
-https://httpbin.org/status/404
-https://httpbin.org/status/500
-https://httpbin.org/delay/2?scenario=slow_checkout&order_id=demo-order-1001
+http://127.0.0.1:43210/rockxy-demo/status/404
+http://127.0.0.1:43210/rockxy-demo/status/500
+http://127.0.0.1:43210/rockxy-demo/delay/2?scenario=slow_checkout&order_id=demo-order-1001
 ```
 
 Use these to demonstrate status filtering, retry debugging, and slow request
@@ -114,9 +138,9 @@ Keep demo values descriptive and fake. Prefer IDs such as `demo-user-001`,
 tokens, session cookies, or production identifiers.
 
 ```dart
-final demoUrl = Uri.https(
-  'httpbin.org',
-  '/anything/rockxy-demo/products',
+final demoUrl = Uri.http(
+  '127.0.0.1:43210',
+  '/rockxy-demo/products',
   {
     'category': 'coffee',
     'currency': 'USD',
@@ -145,7 +169,9 @@ final settings = RockxyDebugProxySettings(
 );
 
 final client = settings.createHttpClient();
-final request = await client.getUrl(Uri.parse('https://httpbin.org/get'));
+final request = await client.getUrl(
+  Uri.parse('http://127.0.0.1:43210/rockxy-demo/bootstrap'),
+);
 final response = await request.close();
 client.close(force: true);
 ```
@@ -160,7 +186,9 @@ final settings = RockxyDebugProxySettings(
 );
 
 final client = settings.createPackageHttpClient();
-final response = await client.get(Uri.parse('https://httpbin.org/get'));
+final response = await client.get(
+  Uri.parse('http://127.0.0.1:43210/rockxy-demo/bootstrap'),
+);
 client.close();
 ```
 
@@ -174,7 +202,9 @@ final settings = RockxyDebugProxySettings(
 );
 
 final dio = settings.createDio();
-final response = await dio.getUri(Uri.parse('https://httpbin.org/get'));
+final response = await dio.getUri(
+  Uri.parse('http://127.0.0.1:43210/rockxy-demo/bootstrap'),
+);
 dio.close(force: true);
 ```
 
@@ -185,7 +215,7 @@ The app has a small form where you can choose:
 - runtime: local Apple runtime, Android Emulator, or physical device;
 - Rockxy port;
 - Device Proxy LAN host for physical devices;
-- HTTPS URL to request;
+- HTTP or HTTPS URL to request;
 - client type: Dart `HttpClient`, `package:http`, or Dio 5.
 
 The reusable implementation lives in:

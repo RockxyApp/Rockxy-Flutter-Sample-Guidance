@@ -34,7 +34,8 @@ class _RockxyProbeScreenState extends State<RockxyProbeScreen> {
   final _portController = TextEditingController(text: '9090');
   final _physicalHostController = TextEditingController();
   final _urlController = TextEditingController(
-    text: 'https://httpbin.org/get',
+    text:
+        'http://127.0.0.1:43210/rockxy-demo/bootstrap?app=storefront&platform=flutter&build=debug',
   );
 
   RockxyRuntime _runtime = RockxyRuntime.localAppleRuntime;
@@ -91,10 +92,10 @@ class _RockxyProbeScreenState extends State<RockxyProbeScreen> {
             const SizedBox(height: 16),
             _TextFieldCard(
               controller: _urlController,
-              label: 'HTTPS URL',
-              hint: 'https://httpbin.org/get',
+              label: 'Request URL',
+              hint: 'http://127.0.0.1:43210/rockxy-demo/bootstrap',
               helper:
-                  'Send a known HTTPS request, then confirm it appears in Rockxy.',
+                  'Run the local demo API, send a request, then confirm it appears in Rockxy.',
               keyboardType: TextInputType.url,
               onChanged: (_) => setState(() {}),
             ),
@@ -162,10 +163,10 @@ class _RockxyProbeScreenState extends State<RockxyProbeScreen> {
       return;
     }
 
-    if (uri.scheme != 'https') {
+    if (uri.scheme != 'http' && uri.scheme != 'https') {
       setState(() {
         _result = null;
-        _errorMessage = 'Use an HTTPS URL so certificate trust can be tested.';
+        _errorMessage = 'Use an HTTP or HTTPS URL.';
       });
       return;
     }
