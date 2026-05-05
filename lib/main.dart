@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import 'rockxy_debug_proxy.dart';
@@ -172,6 +173,18 @@ class _RockxyProbeScreenState extends State<RockxyProbeScreen> {
     }
 
     final settings = _settingsFromForm();
+    final runtimeIssue = runtimeMismatchMessage(
+      runtime: settings.runtime,
+      platform: defaultTargetPlatform,
+    );
+    if (_proxyEnabled && runtimeIssue != null) {
+      setState(() {
+        _result = null;
+        _errorMessage = runtimeIssue;
+      });
+      return;
+    }
+
     if (_proxyEnabled && (settings.port <= 0 || settings.port > 65535)) {
       setState(() {
         _result = null;
@@ -215,6 +228,40 @@ class _RockxyProbeScreenState extends State<RockxyProbeScreen> {
         setState(() => _isLoading = false);
       }
     }
+  }
+}
+
+@visibleForTesting
+String? runtimeMismatchMessage({
+  required RockxyRuntime runtime,
+  required TargetPlatform platform,
+}) {
+  switch (runtime) {
+    case RockxyRuntime.localAppleRuntime:
+      if (platform == TargetPlatform.iOS || platform == TargetPlatform.macOS) {
+        return null;
+      }
+
+      return 'This runtime is for macOS desktop or iOS Simulator. '
+          'Select Android Emulator only when the Flutter app itself is running inside an Android emulator.';
+
+    case RockxyRuntime.androidEmulator:
+      if (platform == TargetPlatform.android) {
+        return null;
+      }
+
+      return 'Android Emulator uses 10.0.2.2 only from inside an Android emulator. '
+          'This Flutter app is not running on Android right now. Select iOS Simulator / macOS desktop, '
+          'or start an Android emulator and run the app on that emulator.';
+
+    case RockxyRuntime.physicalDevice:
+      if (platform == TargetPlatform.android ||
+          platform == TargetPlatform.iOS) {
+        return null;
+      }
+
+      return 'Physical device setup only applies when the Flutter app is running on an iPhone, iPad, or Android device. '
+          'Select iOS Simulator / macOS desktop while running this sample on macOS.';
   }
 }
 

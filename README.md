@@ -27,6 +27,11 @@ The active Rockxy port is shown in the Rockxy toolbar. For physical devices, use
 the Device Proxy LAN host shown in Developer Setup Hub and keep the device on the
 same local network as the Mac.
 
+Only choose `Android Emulator` when the Flutter app itself is running inside an
+Android emulator. If you run this sample as a macOS desktop app, choose
+`iOS Simulator / macOS desktop`; `10.0.2.2` is an Android-emulator-only route
+back to the Mac.
+
 ## Step-By-Step Setup
 
 1. Start Rockxy and keep capture enabled.
@@ -294,3 +299,21 @@ ports:
 - Demo API: `43210`.
 
 Do not put the demo API port into the `Rockxy port` field.
+
+### No route to host on 10.0.2.2
+
+If the app shows:
+
+```text
+Rockxy proxy is not reachable at 10.0.2.2:<copied Rockxy port>.
+Raw socket error: No route to host
+```
+
+the sample is probably running on macOS while `Android Emulator` is selected.
+`10.0.2.2` only works from inside an Android emulator.
+
+Fix it one of two ways:
+
+1. If you are running the Flutter app on macOS, select `iOS Simulator / macOS desktop`.
+2. If you want to test Android Emulator routing, start an Android emulator and
+   run the app on that emulator with `fvm flutter run`.

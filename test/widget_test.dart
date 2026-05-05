@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:rockxy_flutter_sample_guidance/main.dart';
+import 'package:rockxy_flutter_sample_guidance/rockxy_debug_proxy.dart';
 
 void main() {
   Future<void> pumpSampleApp(WidgetTester tester) async {
@@ -38,5 +39,15 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('10.0.2.2:8888'), findsOneWidget);
+  });
+
+  test('Android Emulator runtime explains macOS mismatch', () {
+    expect(
+      runtimeMismatchMessage(
+        runtime: RockxyRuntime.androidEmulator,
+        platform: TargetPlatform.macOS,
+      ),
+      contains('10.0.2.2 only from inside an Android emulator'),
+    );
   });
 }
