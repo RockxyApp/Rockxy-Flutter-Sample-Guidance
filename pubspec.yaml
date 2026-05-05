@@ -1,0 +1,21 @@
+name: rockxy_flutter_sample_guidance
+description: A public Flutter sample that demonstrates debug-only Rockxy proxy setup.
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.4.0 <4.0.0'
+
+dependencies:
+  dio: ^5.7.0
+  flutter:
+    sdk: flutter
+  http: ^1.2.2
+
+dev_dependencies:
+  flutter_lints: ^5.0.0
+  flutter_test:
+    sdk: flutter
+
+flutter:
+  uses-material-design: true

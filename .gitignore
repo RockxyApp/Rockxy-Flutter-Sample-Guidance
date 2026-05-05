@@ -1,0 +1,42 @@
+# Flutter/Dart
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+build/
+
+# FVM keeps the selected SDK symlink here. The project version is tracked in
+# .fvmrc instead so contributors can switch with `fvm use`.
+.fvm/
+!.fvmrc
+
+# Platform build output
+android/.gradle/
+android/app/build/
+ios/Flutter/Flutter.framework
+ios/Flutter/Flutter.podspec
+ios/Pods/
+macos/Flutter/ephemeral/
+
+# IDEs
+.idea/
+.vscode/
+*.iml
+
+# macOS
+.DS_Store
+
+# Local workspace metadata
+.claude/
+.codex/
+.agents/
+.cursor/
+CLAUDE.md
+AGENTS.md
+
+# Logs and local environment
+*.log
+.env
+.env.*
