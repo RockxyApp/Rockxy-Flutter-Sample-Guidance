@@ -247,3 +247,37 @@ For Android, keep user-CA trust under `app/src/debug`, not `app/src/main`.
 Rockxy validation confirms that the request reached Rockxy through the proxy. It
 does not prove which device, simulator, emulator, Dart isolate, app, or process
 emitted the traffic.
+
+## Troubleshooting
+
+### Connection refused on 127.0.0.1
+
+If the app shows an error like:
+
+```text
+SocketException: Connection refused, address = 127.0.0.1, port = 57947
+```
+
+the port in that message is the endpoint the Flutter app could not reach. When
+`Proxy through Rockxy` is enabled, this usually means the Rockxy proxy is not
+listening on the port entered in the sample app.
+
+Check these in order:
+
+1. Start capture in Rockxy.
+2. Copy the active Rockxy port from the Rockxy toolbar.
+3. Paste that value into the sample app's `Rockxy port` field.
+4. Keep the runtime set to `iOS Simulator / macOS desktop` when running on macOS.
+5. Keep the local demo API running in a separate terminal:
+
+```sh
+fvm dart run tool/rockxy_demo_api.dart --port 43210
+```
+
+For the default local demo, Rockxy and the sample should use two different
+ports:
+
+- Rockxy proxy: the active port shown in Rockxy, often `9090`.
+- Demo API: `43210`.
+
+Do not put the demo API port into the `Rockxy port` field.

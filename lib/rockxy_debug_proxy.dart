@@ -151,7 +151,9 @@ final class RockxyDebugProbeClient {
   Future<RockxyProbeResult> get(
     Uri uri, {
     required RockxyHttpClientKind client,
-  }) {
+  }) async {
+    await _verifyProxyReachable();
+
     switch (client) {
       case RockxyHttpClientKind.dartHttpClient:
         return _getWithDartHttpClient(uri);
@@ -159,6 +161,28 @@ final class RockxyDebugProbeClient {
         return _getWithPackageHttp(uri);
       case RockxyHttpClientKind.dio:
         return _getWithDio(uri);
+    }
+  }
+
+  Future<void> _verifyProxyReachable() async {
+    if (!settings.hasProxyTarget) {
+      return;
+    }
+
+    Socket? socket;
+    try {
+      socket = await Socket.connect(
+        settings.proxyHost,
+        settings.port,
+        timeout: const Duration(seconds: 2),
+      );
+    } on SocketException catch (error) {
+      throw RockxyProbeException.proxyUnreachable(
+        settings: settings,
+        error: error,
+      );
+    } finally {
+      socket?.destroy();
     }
   }
 
@@ -234,4 +258,28 @@ final class RockxyDebugProbeClient {
 
     return '${normalized.substring(0, 800)}...';
   }
+}
+
+final class RockxyProbeException implements Exception {
+  const RockxyProbeException(this.message);
+
+  factory RockxyProbeException.proxyUnreachable({
+    required RockxyDebugProxySettings settings,
+    required SocketException error,
+  }) {
+    final socketTarget = error.address == null || error.port == null
+        ? ''
+        : '\nSocket target: ${error.address!.address}:${error.port}';
+
+    return RockxyProbeException(
+      'Rockxy proxy is not reachable at ${settings.proxyHostPort}.\n'
+      'Start capture in Rockxy, then make sure the Rockxy port field in this '
+      'sample matches the active port shown in Rockxy.$socketTarget',
+    );
+  }
+
+  final String message;
+
+  @override
+  String toString() => message;
 }
