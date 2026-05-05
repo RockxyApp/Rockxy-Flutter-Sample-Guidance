@@ -65,6 +65,70 @@ fvm flutter test
 The generated Android debug target already includes the same debug-only trust
 configuration shown in `snippets/android/app/src/debug`.
 
+## Create Demo Traffic
+
+Use harmless, clearly fake data when recording a Rockxy demo. The sample app can
+send any HTTPS `GET` URL, so a good demo is usually a short sequence of requests
+that looks like a real app flow without exposing real accounts, tokens, or
+customer data.
+
+### Recommended Demo Flow
+
+Paste these URLs into the sample app one at a time and send each request through
+Rockxy:
+
+```text
+https://httpbin.org/anything/rockxy-demo/bootstrap?app=storefront&platform=flutter&build=debug
+https://httpbin.org/anything/rockxy-demo/profile?user_id=demo-user-001&plan=trial&region=us
+https://httpbin.org/anything/rockxy-demo/products?category=coffee&currency=USD&page=1
+https://httpbin.org/anything/rockxy-demo/cart?cart_id=demo-cart-2026&items=3&subtotal=64.50
+https://httpbin.org/anything/rockxy-demo/checkout?order_id=demo-order-1001&payment_method=sandbox_card
+```
+
+This creates a professional-looking capture timeline:
+
+- bootstrap request for app startup behavior;
+- profile request with fake account metadata;
+- product listing request with pagination and currency;
+- cart request with fake order state;
+- checkout request that uses an obvious sandbox payment label.
+
+### Error And Latency Cases
+
+Capture one or two failure cases after the successful flow so the demo shows how
+Rockxy helps inspect edge cases:
+
+```text
+https://httpbin.org/status/404
+https://httpbin.org/status/500
+https://httpbin.org/delay/2?scenario=slow_checkout&order_id=demo-order-1001
+```
+
+Use these to demonstrate status filtering, retry debugging, and slow request
+inspection.
+
+### Generate Your Own Safe Demo URLs
+
+Keep demo values descriptive and fake. Prefer IDs such as `demo-user-001`,
+`demo-cart-2026`, and `sandbox_card` instead of names, email addresses, access
+tokens, session cookies, or production identifiers.
+
+```dart
+final demoUrl = Uri.https(
+  'httpbin.org',
+  '/anything/rockxy-demo/products',
+  {
+    'category': 'coffee',
+    'currency': 'USD',
+    'page': '1',
+    'source': 'flutter_debug_sample',
+  },
+);
+```
+
+Then paste `demoUrl.toString()` into the sample app or pass it directly to the
+client code in `lib/rockxy_debug_proxy.dart`.
+
 ## Copy The Client Setup
 
 The reusable code lives in `lib/rockxy_debug_proxy.dart`. Copy that file into a
