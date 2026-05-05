@@ -267,14 +267,11 @@ final class RockxyProbeException implements Exception {
     required RockxyDebugProxySettings settings,
     required SocketException error,
   }) {
-    final socketTarget = error.address == null || error.port == null
-        ? ''
-        : '\nSocket target: ${error.address!.address}:${error.port}';
-
     return RockxyProbeException(
       'Rockxy proxy is not reachable at ${settings.proxyHostPort}.\n'
       'Start capture in Rockxy, then make sure the Rockxy port field in this '
-      'sample matches the active port shown in Rockxy.$socketTarget',
+      'sample matches the active port shown in Rockxy.\n'
+      'Raw socket error: ${error.message}',
     );
   }
 

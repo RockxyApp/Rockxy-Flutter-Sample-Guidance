@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:rockxy_flutter_sample_guidance/rockxy_debug_proxy.dart';
 
@@ -49,6 +51,28 @@ void main() {
       expect(settings.hasProxyTarget, isFalse);
       expect(settings.displayProxyTarget, 'DIRECT');
       expect(settings.proxyRuleFor(Uri.parse('https://example.com')), 'DIRECT');
+    });
+
+    test('proxy unreachable message points to the configured Rockxy port', () {
+      const settings = RockxyDebugProxySettings(
+        runtime: RockxyRuntime.localAppleRuntime,
+        port: 9090,
+        physicalDeviceHost: '',
+      );
+      final error = SocketException(
+        'Connection refused',
+        address: InternetAddress.loopbackIPv4,
+        port: 58325,
+      );
+
+      final exception = RockxyProbeException.proxyUnreachable(
+        settings: settings,
+        error: error,
+      );
+
+      expect(exception.toString(), contains('127.0.0.1:9090'));
+      expect(exception.toString(), isNot(contains('Socket target')));
+      expect(exception.toString(), isNot(contains('127.0.0.1:58325')));
     });
   });
 }

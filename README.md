@@ -255,12 +255,15 @@ emitted the traffic.
 If the app shows an error like:
 
 ```text
-SocketException: Connection refused, address = 127.0.0.1, port = 57947
+Rockxy proxy is not reachable at 127.0.0.1:9090.
 ```
 
-the port in that message is the endpoint the Flutter app could not reach. When
-`Proxy through Rockxy` is enabled, this usually means the Rockxy proxy is not
-listening on the port entered in the sample app.
+use the `Rockxy proxy is not reachable at ...` line as the attempted proxy
+endpoint. Raw Dart `SocketException` details can include an OS-assigned local
+socket port, so do not copy that raw port into the Rockxy port field.
+
+When `Proxy through Rockxy` is enabled, this usually means the Rockxy proxy is
+not listening on the port entered in the sample app.
 
 Check these in order:
 
@@ -277,7 +280,7 @@ fvm dart run tool/rockxy_demo_api.dart --port 43210
 For the default local demo, Rockxy and the sample should use two different
 ports:
 
-- Rockxy proxy: the active port shown in Rockxy, often `9090`.
+- Rockxy proxy: the active port shown in Rockxy, for example `8888` or `9090`.
 - Demo API: `43210`.
 
 Do not put the demo API port into the `Rockxy port` field.
