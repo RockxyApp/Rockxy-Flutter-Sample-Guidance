@@ -7,7 +7,7 @@ Flutter apps do not always inherit a system proxy automatically. The reliable
 manual path is:
 
 1. choose the Rockxy proxy host for the runtime running the app;
-2. configure the Flutter HTTP client to use that proxy;
+2. copy Rockxy's active proxy port from the Rockxy app into the Flutter client;
 3. run the local demo API on this Mac;
 4. send one known request and confirm it appears in Rockxy.
 
@@ -32,15 +32,17 @@ same local network as the Mac.
 1. Start Rockxy and keep capture enabled.
 2. Open Developer Setup Hub > Flutter.
 3. Pick the runtime that matches where the Flutter app is running.
-4. Use the host and port from the table above.
-5. Run the local demo API:
+4. Copy the active Rockxy proxy port from the Rockxy toolbar.
+5. Paste that value into the sample app's `Rockxy port` field.
+6. Use the runtime host from the table above.
+7. Run the local demo API:
 
 ```sh
 fvm dart run tool/rockxy_demo_api.dart --port 43210
 ```
 
-6. Run the Flutter sample and send the default request.
-7. Confirm Rockxy captures `GET http://127.0.0.1:43210/rockxy-demo/bootstrap`.
+8. Run the Flutter sample and send the default request.
+9. Confirm Rockxy captures `GET http://127.0.0.1:43210/rockxy-demo/bootstrap`.
 
 For HTTPS app traffic, also install and trust the Rockxy certificate for that
 runtime:
@@ -71,6 +73,10 @@ In another terminal, run the Flutter app:
 ```sh
 fvm flutter run
 ```
+
+Before pressing `Send Request`, copy the active proxy port from Rockxy and paste
+it into the sample app's `Rockxy port` field. Do not assume `9090`; Rockxy can
+run on another configured or fallback port, such as `8888`.
 
 The repository tracks `.fvmrc`, so you can switch versions later without
 changing global Flutter:
@@ -164,7 +170,8 @@ app already uses.
 ```dart
 final settings = RockxyDebugProxySettings(
   runtime: RockxyRuntime.localAppleRuntime,
-  port: 9090,
+  // Replace this with the active proxy port copied from Rockxy.
+  port: 8888,
   physicalDeviceHost: '',
 );
 
@@ -181,7 +188,8 @@ client.close(force: true);
 ```dart
 final settings = RockxyDebugProxySettings(
   runtime: RockxyRuntime.androidEmulator,
-  port: 9090,
+  // Replace this with the active proxy port copied from Rockxy.
+  port: 8888,
   physicalDeviceHost: '',
 );
 
@@ -197,7 +205,8 @@ client.close();
 ```dart
 final settings = RockxyDebugProxySettings(
   runtime: RockxyRuntime.physicalDevice,
-  port: 9090,
+  // Replace this with the active proxy port copied from Rockxy.
+  port: 8888,
   physicalDeviceHost: '192.168.1.10',
 );
 
@@ -213,7 +222,7 @@ dio.close(force: true);
 The app has a small form where you can choose:
 
 - runtime: local Apple runtime, Android Emulator, or physical device;
-- Rockxy port;
+- Rockxy port copied from the active Rockxy app;
 - Device Proxy LAN host for physical devices;
 - HTTP or HTTPS URL to request;
 - client type: Dart `HttpClient`, `package:http`, or Dio 5.
@@ -241,8 +250,9 @@ For Android, keep user-CA trust under `app/src/debug`, not `app/src/main`.
 1. Start Rockxy and keep capture running.
 2. Open Developer Setup Hub > Flutter.
 3. Pick the same runtime host shown in this sample.
-4. Run one request from the sample app.
-5. Confirm Rockxy captures the request.
+4. Copy the active Rockxy proxy port into the sample app.
+5. Run one request from the sample app.
+6. Confirm Rockxy captures the request.
 
 Rockxy validation confirms that the request reached Rockxy through the proxy. It
 does not prove which device, simulator, emulator, Dart isolate, app, or process
@@ -255,7 +265,7 @@ emitted the traffic.
 If the app shows an error like:
 
 ```text
-Rockxy proxy is not reachable at 127.0.0.1:9090.
+Rockxy proxy is not reachable at 127.0.0.1:<copied Rockxy port>.
 ```
 
 use the `Rockxy proxy is not reachable at ...` line as the attempted proxy

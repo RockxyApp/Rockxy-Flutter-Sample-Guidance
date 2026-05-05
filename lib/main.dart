@@ -31,7 +31,7 @@ class RockxyProbeScreen extends StatefulWidget {
 }
 
 class _RockxyProbeScreenState extends State<RockxyProbeScreen> {
-  final _portController = TextEditingController(text: '9090');
+  final _portController = TextEditingController();
   final _physicalHostController = TextEditingController();
   final _urlController = TextEditingController(
     text:
@@ -76,8 +76,8 @@ class _RockxyProbeScreenState extends State<RockxyProbeScreen> {
             _TextFieldCard(
               controller: _portController,
               label: 'Rockxy port',
-              hint: '9090',
-              helper: 'Use the active port shown in Rockxy.',
+              hint: 'Copy from Rockxy, e.g. 8888',
+              helper: 'Paste the active proxy port shown in Rockxy.',
               keyboardType: TextInputType.number,
               onChanged: (_) => setState(() {}),
             ),
@@ -148,7 +148,7 @@ class _RockxyProbeScreenState extends State<RockxyProbeScreen> {
       enabled: _proxyEnabled,
       allowBadCertificates: _allowBadCertificates,
       runtime: _runtime,
-      port: parsedPort ?? 9090,
+      port: parsedPort ?? 0,
       physicalDeviceHost: _physicalHostController.text,
     );
   }
@@ -172,6 +172,15 @@ class _RockxyProbeScreenState extends State<RockxyProbeScreen> {
     }
 
     final settings = _settingsFromForm();
+    if (_proxyEnabled && (settings.port <= 0 || settings.port > 65535)) {
+      setState(() {
+        _result = null;
+        _errorMessage =
+            'Copy the active Rockxy proxy port from Rockxy, then paste it into the Rockxy port field.';
+      });
+      return;
+    }
+
     if (_proxyEnabled && !settings.hasProxyTarget) {
       setState(() {
         _result = null;

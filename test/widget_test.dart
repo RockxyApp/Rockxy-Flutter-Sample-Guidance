@@ -1,5 +1,4 @@
-import 'dart:ui';
-
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:rockxy_flutter_sample_guidance/main.dart';
 
@@ -28,11 +27,16 @@ void main() {
       (tester) async {
     await pumpSampleApp(tester);
 
-    expect(find.text('127.0.0.1:9090'), findsOneWidget);
+    expect(find.text('Copy Rockxy port'), findsOneWidget);
+
+    await tester.enterText(find.byType(TextField).first, '8888');
+    await tester.pumpAndSettle();
+
+    expect(find.text('127.0.0.1:8888'), findsOneWidget);
 
     await tester.tap(find.textContaining('Android Emulator'));
     await tester.pumpAndSettle();
 
-    expect(find.text('10.0.2.2:9090'), findsOneWidget);
+    expect(find.text('10.0.2.2:8888'), findsOneWidget);
   });
 }

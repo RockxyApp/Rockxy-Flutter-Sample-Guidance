@@ -63,12 +63,25 @@ final class RockxyDebugProxySettings {
 
   String get proxyHostPort => '$proxyHost:$port';
 
+  bool get hasValidPort {
+    return port > 0 && port <= 65535;
+  }
+
   bool get hasProxyTarget {
     return enabled &&
+        hasValidPort &&
         !(runtime == RockxyRuntime.physicalDevice && proxyHost.isEmpty);
   }
 
   String get displayProxyTarget {
+    if (!enabled) {
+      return 'DIRECT';
+    }
+
+    if (!hasValidPort) {
+      return 'Copy Rockxy port';
+    }
+
     return hasProxyTarget ? proxyHostPort : 'DIRECT';
   }
 

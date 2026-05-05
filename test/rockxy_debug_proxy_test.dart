@@ -53,6 +53,21 @@ void main() {
       expect(settings.proxyRuleFor(Uri.parse('https://example.com')), 'DIRECT');
     });
 
+    test(
+        'prompts for the Rockxy port when proxy is enabled without a valid port',
+        () {
+      const settings = RockxyDebugProxySettings(
+        runtime: RockxyRuntime.localAppleRuntime,
+        port: 0,
+        physicalDeviceHost: '',
+      );
+
+      expect(settings.hasValidPort, isFalse);
+      expect(settings.hasProxyTarget, isFalse);
+      expect(settings.displayProxyTarget, 'Copy Rockxy port');
+      expect(settings.proxyRuleFor(Uri.parse('https://example.com')), 'DIRECT');
+    });
+
     test('proxy unreachable message points to the configured Rockxy port', () {
       const settings = RockxyDebugProxySettings(
         runtime: RockxyRuntime.localAppleRuntime,
