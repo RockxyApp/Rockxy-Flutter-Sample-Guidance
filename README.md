@@ -49,6 +49,8 @@ fvm dart run tool/rockxy_demo_api.dart --port 43210
 8. Run the Flutter sample and send the default request.
 9. Confirm Rockxy captures `GET http://127.0.0.1:43210/rockxy-demo/bootstrap`.
 
+![Rockxy capturing the Flutter sample demo request](docs/DemoFlutter.png)
+
 For HTTPS app traffic, also install and trust the Rockxy certificate for that
 runtime:
 
